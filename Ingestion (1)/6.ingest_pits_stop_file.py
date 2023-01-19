@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date= dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
@@ -33,7 +38,7 @@ pit_stops_schema = StructType(fields = [
 
 # COMMAND ----------
 
-pit_stops_df = spark.read.schema(pit_stops_schema).option("multiline", True).json(f"{raw_folder_path}/pit_stops.json")
+pit_stops_df = spark.read.schema(pit_stops_schema).option("multiline", True).json(f"{raw_folder_path}/{v_file_date}/pit_stops.json")
 
 # COMMAND ----------
 
@@ -58,8 +63,18 @@ final_pit_stops_df = add_ingestion_date(final_pit_stops_df)
 
 # COMMAND ----------
 
-final_pit_stops_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.pitstops")
+#overwrite_partition(final_pit_stops_df, "f1_processed", "pitstops", "race_id")
+
+# COMMAND ----------
+
+merge_condition = "tgt.race_id = src.race_id AND tgt.driver_id = src.driver_id AND tgt.stop = src.stop"
+merge_delta_table(final_pit_stops_df, "f1_processed", "pitstops", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM f1_processed.pitstops

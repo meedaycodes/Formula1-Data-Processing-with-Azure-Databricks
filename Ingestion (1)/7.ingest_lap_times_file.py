@@ -14,6 +14,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date= dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
@@ -37,7 +42,7 @@ lap_times_schema = StructType(fields = [
 
 # COMMAND ----------
 
-lap_times_df = spark.read.schema(lap_times_schema).csv(f"{raw_folder_path}/lap_times")
+lap_times_df = spark.read.schema(lap_times_schema).csv(f"{raw_folder_path}/{v_file_date}/lap_times")
 
 # COMMAND ----------
 
@@ -62,7 +67,12 @@ final_lap_times_df = add_ingestion_date(final_lap_times_df)
 
 # COMMAND ----------
 
-final_lap_times_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.laptimes")
+#overwrite_partition(final_lap_times_df, "f1_processed", "laptimes", "race_id")
+
+# COMMAND ----------
+
+merge_condition = "tgt.race_id = src.race_id AND tgt.driver_id = src.driver_id AND tgt.lap = src.lap"
+merge_delta_table(final_lap_times_df, "f1_processed", "laptimes", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 

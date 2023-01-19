@@ -80,11 +80,11 @@ drivers_final_df = drivers_with_columns_df.drop(col("url"))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Step 4 - Write Cleaned data to the Processed Container as a parquet file
+# MAGIC ###Step 4 - Write Cleaned data to the Processed Container as a delta file
 
 # COMMAND ----------
 
-drivers_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.drivers")
+drivers_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.drivers")
 
 # COMMAND ----------
 

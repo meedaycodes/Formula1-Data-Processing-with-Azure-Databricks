@@ -65,11 +65,11 @@ constructor_final_df = add_ingestion_date(constructor_final_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Step 4 - Write clean data to Processed Container as a parquet file
+# MAGIC ###Step 4 - Write clean data to Processed Container as a delta file
 
 # COMMAND ----------
 
-constructor_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.constructors")
+constructor_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.constructors")
 
 # COMMAND ----------
 

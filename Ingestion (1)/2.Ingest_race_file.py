@@ -96,11 +96,11 @@ race_processed_df = race_transformed_df.select(col("race_id"), col("race_year"),
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###Step 6 - Write the cleaned data to the Processed Container as a Parquet file
+# MAGIC ###Step 6 - Write the cleaned data to the Processed Container as a Delta file
 
 # COMMAND ----------
 
-race_processed_df.write.mode("overwrite").partitionBy("race_year").format("parquet").saveAsTable("f1_processed.races")
+race_processed_df.write.mode("overwrite").partitionBy("race_year").format("delta").saveAsTable("f1_processed.races")
 
 # COMMAND ----------
 

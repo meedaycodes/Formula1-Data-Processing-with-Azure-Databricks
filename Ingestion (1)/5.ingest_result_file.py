@@ -83,6 +83,15 @@ final_results_df = add_ingestion_date(drop_column_results_df)
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC De-duplicate the final df
+
+# COMMAND ----------
+
+final_deduped_df = final_results_df.dropDuplicates(["race_id", "driver_id"])
+
+# COMMAND ----------
+
 # MAGIC %md 
 # MAGIC ###Step 3 - Write Cleaned data to the processed container as a parquet file and partition by race id
 
@@ -99,38 +108,21 @@ final_results_df = add_ingestion_date(drop_column_results_df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ####Method two
+# MAGIC ####Method two (Incremental Load)
+
+# COMMAND ----------
+
+#overwrite_partition(final_results_df, "f1_processed", "results", "race_id")
+
+# COMMAND ----------
+
+merge_condition = "tgt.result_id = src.result_id AND tgt.race_id = src.race_id"
+merge_delta_table(final_deduped_df, "f1_processed", "results", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC --DROP TABLE IF EXISTS f1_processed.results;
-
-# COMMAND ----------
-
-spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-
-# COMMAND ----------
-
-final_results_df = final_results_df.select("result_id", "driver_id", "constructor_id", "number", "grid", "position", 
-                                          "position_text", "position_order", "points", "laps", "time", "milliseconds",
-                                          "fastest_lap", "fastest_lap_time", "data_source", "file_date", "ingestion_date", "race_id")
-
-# COMMAND ----------
-
-if (spark._jsparkSession.catalog().tableExists("f1_processed.results")):
-    final_results_df.write.mode("overwrite").insertInto("f1_processed.results")
-else:
-    final_results_df.write.mode("overwrite").partitionBy("race_id").format("parquet").saveAsTable("f1_processed.results")
-
-# COMMAND ----------
-
-final_results_df.write.mode("overwrite").partitionBy("race_id").format("parquet").saveAsTable("f1_processed.results")
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC SELECT * FROM f1_processed.results
 
 # COMMAND ----------
 

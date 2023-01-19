@@ -14,6 +14,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date= dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
@@ -40,7 +45,7 @@ qualifying_schema = StructType(fields = [
 
 # COMMAND ----------
 
-qualifying_df = spark.read.schema(qualifying_schema).option("multiline", True).json(f"{raw_folder_path}/qualifying")
+qualifying_df = spark.read.schema(qualifying_schema).option("multiline", True).json(f"{raw_folder_path}/{v_file_date}/qualifying")
 
 # COMMAND ----------
 
@@ -67,7 +72,12 @@ final_qualifying_df = add_ingestion_date(final_qualifying_df)
 
 # COMMAND ----------
 
-final_qualifying_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.qualifying")
+#overwrite_partition(final_qualifying_df, "f1_processed", "qualifying", "race_id")
+
+# COMMAND ----------
+
+merge_condition = "tgt.qualify_id = src.qualify_id AND tgt.race_id = src.race_id"
+merge_delta_table(final_qualifying_df, "f1_processed", "qualifying", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
