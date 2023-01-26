@@ -1,5 +1,6 @@
 # Formula1-Data-Processing-with-Azure-Databricks
-<img width="940" alt="Image" src="https://user-images.githubusercontent.com/112330482/213871254-b5f9cb7c-97c3-4564-a7bd-aad7ba28b6c2.png">
+![adf](https://user-images.githubusercontent.com/112330482/214953091-a6f63a91-b388-4458-ab91-ed22fe2c4b2a.png)
+
 
 Tools- Used: Azure Databricks, Databricks compute clusters, Databricks Notebooks, Azure Gen-2 Datalake storage, DeltaLake File format, Pyspark, Azure data Factory[Triggers, Linked Services], Power-BI
 - The formula-1 historic data used for this project can be downloaded as a zipfile or using the Ergast API 
